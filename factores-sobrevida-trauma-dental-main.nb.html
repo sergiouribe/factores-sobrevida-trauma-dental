@@ -265,6 +265,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Cox analysis</h1>
+<h4 class="date"><em>20 October, 2017</em></h4>
 
 </div>
 
@@ -284,12 +285,108 @@ coronaria.</p>
 <li>Obtener un orden de relevancia de los factores que intervienen en el pronóstico de sobrevida de dientes permanentes con desarrollo radicular incompleto que sufren fracturas coronarias.</li>
 <li>Generar un protocolo de abordaje de dientes permanentes con desarrollo radicular incompleto que sufren fracturas coronarias.</li>
 </ul>
-<p># Pauetes</p>
+</div>
+</div>
+<div id="paquetes" class="section level1">
+<h1>Paquetes</h1>
+<!-- rnb-text-end -->
+<!-- rnb-text-begin -->
+<div id="paquetes-especificos" class="section level2">
+<h2>Paquetes específicos</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjpbImxpYnJhcnkoc3Vydml2YWwpICMgZm9yIGNvbXB1dGluZyBzdXJ2aXZhbCBhbmFseXNlcyIsImxpYnJhcnkoc3Vydm1pbmVyKSAjIGZvciB2aXN1YWxpemluZyBzdXJ2aXZhbCBhbmFseXNpcyByZXN1bHRzIl19 -->
+<pre class="r"><code>library(survival) # for computing survival analyses
+library(survminer) # for visualizing survival analysis results</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+</div>
+<div id="dataset" class="section level1">
+<h1>Dataset</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2xpbXBzZShkZilcblxuYGBgIn0= -->
+<pre class="r"><code>glimpse(df)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiT2JzZXJ2YXRpb25zOiAxMDZcblZhcmlhYmxlczogMTlcbiQgTWFyY2EgdGVtcG9yYWwgICAgICAgICAgICAgICAgICAgICAgICA8Y2hyPiBcIjQvMDkvMjAxNyAyMDowMDoxMVwiLCBcIjQvMDkvMjAxNyAyMDowMTozNVwiLCBcIjQvLi4uXG4kIEhDICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGludD4gMjYsIDI2LCA1MiwgNTIsIDUyLCA2MiwgNjgsIDc0LCA3NCwgMTA1MywgMTA4OSwuLi5cbiQgSUQgKG7CuiByZWdpc3RybykgICAgICAgICAgICAgICAgICAgICAgPGludD4gMSwgMiwgMywgNCwgNSwgNiwgNywgOCwgOSwgMTAsIDExLCAxMiwgMTMsIDE0LCAuLi5cbiQgR8OJTkVSTyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGNocj4gXCJNYXNjdWxpbm9cIiwgXCJNYXNjdWxpbm9cIiwgXCJNYXNjdWxpbm9cIiwgXCJNYXNjdWxpLi4uXG4kIEZFQ0hBIERFIE5BQ0lNSUVOVE8gICAgICAgICAgICAgICAgICAgPGNocj4gXCIyNS8wNy8xOTg0XCIsIFwiMjUvMDcvMTk4NFwiLCBcIjMxLzEwLzE5ODJcIiwgXCIzMS8xLi4uXG4kIERJRU5URSBBRkVDVEFETyAgICAgICAgICAgICAgICAgICAgICAgPGludD4gMTEsIDIxLCAxMSwgMjEsIDIyLCAyMSwgMTIsIDExLCAyMSwgMjEsIDIxLCAyMSwuLi5cbiQgRElBR07Dk1NUSUNPICAgICAgICAgICAgICAgICAgICAgICAgICAgPGNocj4gXCJGQ0Mgc2luIGx1eGFjacOzblwiLCBcIkZDTkMgc2luIGx1eGFjacOzblwiLCBcIkZDQyBzLi4uXG4kIFNPQlJFVklEQSBQVUxQQVIgICAgICAgICAgICAgICAgICAgICAgPGNocj4gXCJEZXNhcnJvbGxvIFJhZGljdWxhciBjb21wbGV0bywgY29uIGVuZG9kb25jaWFcIi4uLlxuJCBUUkFUQU1JRU5UTyAgICAgICAgICAgICAgICAgICAgICAgICAgIDxjaHI+IFwiUmVjdWJyaW1pZW50byBkaXJlY3RvXCIsIFwiUmVwb3NpY2nDs24gZGUgZnJhZ21lbi4uLlxuJCBUSUVNUE8gSEFTVEEgTEEgQVRFTkNJw5NOIChlbiBob3JhcykgICA8Y2hyPiBcIjE2XCIsIFwiMTZcIiwgXCI0ODBcIiwgXCI0ODBcIiwgXCI0ODBcIiwgXCIxXCIsIFwiNjUwXCIsIFwiNC4uLlxuJCBGRUNIQSBUUkFVTUFUSVNNTyAgICAgICAgICAgICAgICAgICAgIDxjaHI+IFwiMi8wNy8xOTkzXCIsIFwiMi8wNy8xOTkzXCIsIFwiNC8xMS8xOTkxXCIsIFwiNC8xMS8xOS4uLlxuJCBGRUNIQSBTT0JSRVZJREEgICAgICAgICAgICAgICAgICAgICAgIDxjaHI+IFwiMTYvMDQvMjAwM1wiLCBcIjEzLzA2LzIwMDhcIiwgXCIxLzA2LzE5OTRcIiwgXCI3LzA0Ly4uLlxuJCBFU1RBRE8gUkFESUNVTEFSIElOSUNJQUwgICAgICAgICAgICAgIDxjaHI+IFwiNSByYcOteiBjb21wbGV0YSDDoXBpY2UgYWJpZXJ0b1wiLCBcIjUgcmHDrXogY29tcGxlLi4uXG4kIFRSQVVNQVRJU01PIFJFUEVUSURPICAgICAgICAgICAgICAgICAgPGNocj4gXCJTw61cIiwgXCJTw61cIiwgXCJTw61cIiwgXCJTw61cIiwgXCJTw61cIiwgXCJOb1wiLCBcIk5vXCIsIFwiU8OtXCIsLi4uXG4kIFRSQVVNQVRJU01PIFBSRVZJTyAgICAgICAgICAgICAgICAgICAgPGNocj4gXCJOb1wiLCBcIk5vXCIsIFwiTm9cIiwgXCJOb1wiLCBcIk5vXCIsIFwiTm9cIiwgXCJOb1wiLCBcIk5vXCIsLi4uXG4kIElORElDQUNJw5NOIERFIEhJR0lFTkUgICAgICAgICAgICAgICAgIDxjaHI+IFwiVG9kb3MgbG9zIGNvbnRyb2xlc1wiLCBcIlRvZG9zIGxvcyBjb250cm9sZXNcIiwgXCIuLi5cbiQgRVZBTFVBQ0nDk04gREUgSElHSUVORSAgICAgICAgICAgICAgICAgPGNocj4gXCJSZWd1bGFyXCIsIFwiTWFsYVwiLCBcIlJlZ3VsYXJcIiwgXCJSZWd1bGFyXCIsIFwiUmVndWwuLi5cbiQgT05JQ09GQUdJQSAtIElOVEVSUE9TSUNJw5NOIERFIE9CSkVUT1MgPGNocj4gXCJOb1wiLCBcIk5vXCIsIFwiTm9cIiwgXCJOb1wiLCBcIk5vXCIsIFwiTm9cIiwgXCJOb1wiLCBcIk5vXCIsLi4uXG4kIEV2ZW50byAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGNocj4gTkEsIE5BLCBOQSwgTkEsIE5BLCBOQSwgTkEsIE5BLCBOQSwgTkEsIE5BLCBOQSwuLi5cbiJ9 -->
+<pre><code>Observations: 106
+Variables: 19
+$ Marca temporal                        &lt;chr&gt; &quot;4/09/2017 20:00:11&quot;, &quot;4/09/2017 20:01:35&quot;, &quot;4/...
+$ HC                                    &lt;int&gt; 26, 26, 52, 52, 52, 62, 68, 74, 74, 1053, 1089,...
+$ ID (nº registro)                      &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, ...
+$ GÉNERO                                &lt;chr&gt; &quot;Masculino&quot;, &quot;Masculino&quot;, &quot;Masculino&quot;, &quot;Masculi...
+$ FECHA DE NACIMIENTO                   &lt;chr&gt; &quot;25/07/1984&quot;, &quot;25/07/1984&quot;, &quot;31/10/1982&quot;, &quot;31/1...
+$ DIENTE AFECTADO                       &lt;int&gt; 11, 21, 11, 21, 22, 21, 12, 11, 21, 21, 21, 21,...
+$ DIAGNÓSTICO                           &lt;chr&gt; &quot;FCC sin luxación&quot;, &quot;FCNC sin luxación&quot;, &quot;FCC s...
+$ SOBREVIDA PULPAR                      &lt;chr&gt; &quot;Desarrollo Radicular completo, con endodoncia&quot;...
+$ TRATAMIENTO                           &lt;chr&gt; &quot;Recubrimiento directo&quot;, &quot;Reposición de fragmen...
+$ TIEMPO HASTA LA ATENCIÓN (en horas)   &lt;chr&gt; &quot;16&quot;, &quot;16&quot;, &quot;480&quot;, &quot;480&quot;, &quot;480&quot;, &quot;1&quot;, &quot;650&quot;, &quot;4...
+$ FECHA TRAUMATISMO                     &lt;chr&gt; &quot;2/07/1993&quot;, &quot;2/07/1993&quot;, &quot;4/11/1991&quot;, &quot;4/11/19...
+$ FECHA SOBREVIDA                       &lt;chr&gt; &quot;16/04/2003&quot;, &quot;13/06/2008&quot;, &quot;1/06/1994&quot;, &quot;7/04/...
+$ ESTADO RADICULAR INICIAL              &lt;chr&gt; &quot;5 raíz completa ápice abierto&quot;, &quot;5 raíz comple...
+$ TRAUMATISMO REPETIDO                  &lt;chr&gt; &quot;Sí&quot;, &quot;Sí&quot;, &quot;Sí&quot;, &quot;Sí&quot;, &quot;Sí&quot;, &quot;No&quot;, &quot;No&quot;, &quot;Sí&quot;,...
+$ TRAUMATISMO PREVIO                    &lt;chr&gt; &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;,...
+$ INDICACIÓN DE HIGIENE                 &lt;chr&gt; &quot;Todos los controles&quot;, &quot;Todos los controles&quot;, &quot;...
+$ EVALUACIÓN DE HIGIENE                 &lt;chr&gt; &quot;Regular&quot;, &quot;Mala&quot;, &quot;Regular&quot;, &quot;Regular&quot;, &quot;Regul...
+$ ONICOFAGIA - INTERPOSICIÓN DE OBJETOS &lt;chr&gt; &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;,...
+$ Evento                                &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,...</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="data-manipulation" class="section level2">
+<h2>Data manipulation</h2>
+<p>Creo una nueva variable: status</p>
+<p>Pronóstico pulpar: Variable dependiente. Evaluado con radiografía periapical. - Buen pronóstico: (PS) sobrevivencia de la Pulpa<br />
+- Sin cambio radiográfico, signos clínicos de vitalidad pulpar. - PCO: obliteración del conducto pulpar. - Detención del crecimiento radicular, conducto pulpar normal, longitud<br />
+radicular disminuida en comparación con el homólogo.<br />
+- Mal pronóstico: (PN) necrosis pulpar, observando amplitud del conducto radicular, espesor disminuido de paredes radiculares con o sin lesión apical - Desarrollo radicular completo, con tratamiento de endodoncia. - Detención del crecimiento radicular, con tratamiento de endodoncia.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGFibGUoZGYkYFNPQlJFVklEQSBQVUxQQVJgKVxuXG5gYGAifQ== -->
+<pre class="r"><code>table(df$`SOBREVIDA PULPAR`)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gIERlc2Fycm9sbG8gUmFkaWN1bGFyIGNvbXBsZXRvLCBjb24gZW5kb2RvbmNpYSBEZXRlbmNpw7NuIGNyZWNpbWllbnRvIHJhZGljdWxhciwgY29uIGVuZG9kb25jaWEgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAyNyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgNyBcbiAgIERldGVuY2nDs24gY3JlY2ltaWVudG8gcmFkaWN1bGFyLCBwdWxwYSB2aXRhbCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFBDTyBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAyICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFNpbiBjYW1iaW8gcnggXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA2OSBcbiJ9 -->
+<pre><code>
+  Desarrollo Radicular completo, con endodoncia Detención crecimiento radicular, con endodoncia 
+                                             27                                               7 
+   Detención crecimiento radicular, pulpa vital                                             PCO 
+                                              2                                               1 
+                                  Sin cambio rx 
+                                             69 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="dataset-clean" class="section level2">
+<h2>Dataset clean</h2>
+</div>
+</div>
+<div id="survival-analysis" class="section level1">
+<h1>Survival analysis</h1>
+<div id="basics-of-the-cox-proportional-hazards-model" class="section level2">
+<h2>Basics of the Cox proportional hazards model</h2>
+<p>El propósito del modelo de Cox es evaluar simultáneamente el efecto de varios factores en la supervivencia. Nos permite examinar cómo diversos influyen en la tasa de un evento en particular que ocurre (por ejemplo, infección, muerte) en un momento particular. Esta tasa se conoce comúnmente como la tasa de riesgo (hazard rate). Las variables (o factores) del predictor generalmente se denominan covariables en la literatura de análisis de supervivencia.</p>
+<p>h(t)=h0(t)×exp(b1x1+b2x2+…+bpxp) h(t)=h0(t)×exp(b1x1+b2x2+…+bpxp)</p>
+<p>donde,</p>
+<ul>
+<li><strong>t</strong> representa el tiempo de supervivencia</li>
+<li><strong>h (t)</strong> h (t) es la función de riesgo determinada por un conjunto de covariables p (x1, x2, …, xpx1, x2, …, xp)</li>
+<li><strong>los coeficientes</strong> (b1, b2, …, bpb1, b2, …, bp) miden el impacto (es decir, el tamaño del efecto) de las covariables. el término h0h0 se llama riesgo de referencia. Corresponde al valor del peligro si todos los xixi son iguales a cero (la cantidad exp (0) es igual a 1). La ‘t’ en h (t) nos recuerda que el peligro puede variar con el tiempo.</li>
+</ul>
+<p>El modelo de Cox se puede escribir como una regresión lineal múltiple del logaritmo del peligro en las variables xixi, con el riesgo de la línea de base como un término de “intercepción” que varía con el tiempo.</p>
+<p>Las cantidades exp (bi) exp (bi) se denominan relaciones de riesgo (HR). Un valor de bibi mayor que cero, o equivalente a una razón de riesgo mayor que uno, indica que a medida que el valor de la novena covariable aumenta, el riesgo de evento aumenta y, por lo tanto, la duración de la supervivencia disminuye.</p>
+<p>Dicho de otra manera, una razón de riesgo superior a 1 indica una covariable que está asociada positivamente con la probabilidad del evento y, por lo tanto, está asociada negativamente con la duración de la supervivencia.</p>
+<p>En resumen,</p>
+<p>HR = 1: sin efecto HR &lt; 1: reducción en el riesgo HR &gt; 1: aumento de riesgo</p>
 <!-- rnb-text-end -->
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiQ294IGFuYWx5c2lzIgpvdXRwdXQ6IAogIGh0bWxfbm90ZWJvb2s6IAogICAgdG9jOiB5ZXMKICAgIHRvY19mbG9hdDogdHJ1ZQotLS0KCiMgT2JqZXRpdm9zCiMjIE9CSkVUSVZPIEdFTkVSQUwKRGV0ZXJtaW5hcglsb3MJZmFjdG9yZXMJcXVlCWludGVydmllbmVuCWVuCWVsCXByb27Ds3N0aWNvCWRlCXNvYnJldmlkYQlwdWxwYXIJZGUJZGllbnRlcwkKcGVybWFuZW50ZXMJIGNvbgkgZGVzYXJyb2xsbwkgcmFkaWN1bGFyCSBpbmNvbXBsZXRvCSBxdWUJIHN1ZnJlbgkgYWxnw7puCSB0aXBvCSBkZQkgZnJhY3R1cmEJCmNvcm9uYXJpYS4JCgojIyBPQkpFVElWT1MgRVNQRUPDjUZJQ09TCiAgLSBEZXRlcm1pbmFyCSBzaQkgbGEJIHByZXNlbmNpYQkgZGUJIG1hbG9zCSBow6FiaXRvcywJIHRyYXVtYXRpc21vcwkgcmVwZXRpZG9zCSB5CSBjb250cm9sIGluYWRlY3VhZG8JIGRlCSBsYQkgaGlnaWVuZQkgKHBvcgkgc8OtCSBzb2xvcwkgbwkgYXNvY2lhZG9zKQkgaW5mbHV5ZW4JIGVuCSBlbAkgcHJvbsOzc3RpY28JIGRlIHNvYnJldmlkYQlwdWxwYXIJZGUJZGllbnRlcwlwZXJtYW5lbnRlcwljb24JZGVzYXJyb2xsbwlyYWRpY3VsYXIJaW5jb21wbGV0bwlxdWUgc3VmcmVuCWZyYWN0dXJhcwljb3JvbmFyaWFzLgkKICAtIE9idGVuZXIJdW4Jb3JkZW4JZGUJcmVsZXZhbmNpYQlkZQlsb3MJZmFjdG9yZXMJcXVlCWludGVydmllbmVuCWVuCWVsCXByb27Ds3N0aWNvCWRlIHNvYnJldmlkYQlkZQlkaWVudGVzCXBlcm1hbmVudGVzCWNvbglkZXNhcnJvbGxvCXJhZGljdWxhcglpbmNvbXBsZXRvCXF1ZQlzdWZyZW4gZnJhY3R1cmFzCWNvcm9uYXJpYXMuCQogIC0gR2VuZXJhcgkgdW4JIHByb3RvY29sbwkgZGUJIGFib3JkYWplCSBkZQkgZGllbnRlcwkgcGVybWFuZW50ZXMJIGNvbgkgZGVzYXJyb2xsbwlyYWRpY3VsYXIJaW5jb21wbGV0bwlxdWUJc3VmcmVuCWZyYWN0dXJhcwljb3JvbmFyaWFzLgogIAogICMgUGF1ZXRlcw==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQ294IGFuYWx5c2lzIgpkYXRlOiAiYHIgZm9ybWF0KFN5cy50aW1lKCksICclZCAlQiwgJVknKWAiCm91dHB1dDogCiAgaHRtbF9ub3RlYm9vazogCiAgICB0b2M6IHllcwogICAgdG9jX2Zsb2F0OiB0cnVlCi0tLQoKIyBPYmpldGl2b3MKIyMgT0JKRVRJVk8gR0VORVJBTApEZXRlcm1pbmFyCWxvcwlmYWN0b3JlcwlxdWUJaW50ZXJ2aWVuZW4JZW4JZWwJcHJvbsOzc3RpY28JZGUJc29icmV2aWRhCXB1bHBhcglkZQlkaWVudGVzCQpwZXJtYW5lbnRlcwkgY29uCSBkZXNhcnJvbGxvCSByYWRpY3VsYXIJIGluY29tcGxldG8JIHF1ZQkgc3VmcmVuCSBhbGfDum4JIHRpcG8JIGRlCSBmcmFjdHVyYQkKY29yb25hcmlhLgkKCiMjIE9CSkVUSVZPUyBFU1BFQ8ONRklDT1MKICAtIERldGVybWluYXIJIHNpCSBsYQkgcHJlc2VuY2lhCSBkZQkgbWFsb3MJIGjDoWJpdG9zLAkgdHJhdW1hdGlzbW9zCSByZXBldGlkb3MJIHkJIGNvbnRyb2wgaW5hZGVjdWFkbwkgZGUJIGxhCSBoaWdpZW5lCSAocG9yCSBzw60JIHNvbG9zCSBvCSBhc29jaWFkb3MpCSBpbmZsdXllbgkgZW4JIGVsCSBwcm9uw7NzdGljbwkgZGUgc29icmV2aWRhCXB1bHBhcglkZQlkaWVudGVzCXBlcm1hbmVudGVzCWNvbglkZXNhcnJvbGxvCXJhZGljdWxhcglpbmNvbXBsZXRvCXF1ZSBzdWZyZW4JZnJhY3R1cmFzCWNvcm9uYXJpYXMuCQogIC0gT2J0ZW5lcgl1bglvcmRlbglkZQlyZWxldmFuY2lhCWRlCWxvcwlmYWN0b3JlcwlxdWUJaW50ZXJ2aWVuZW4JZW4JZWwJcHJvbsOzc3RpY28JZGUgc29icmV2aWRhCWRlCWRpZW50ZXMJcGVybWFuZW50ZXMJY29uCWRlc2Fycm9sbG8JcmFkaWN1bGFyCWluY29tcGxldG8JcXVlCXN1ZnJlbiBmcmFjdHVyYXMJY29yb25hcmlhcy4JCiAgLSBHZW5lcmFyCSB1bgkgcHJvdG9jb2xvCSBkZQkgYWJvcmRhamUJIGRlCSBkaWVudGVzCSBwZXJtYW5lbnRlcwkgY29uCSBkZXNhcnJvbGxvCXJhZGljdWxhcglpbmNvbXBsZXRvCXF1ZQlzdWZyZW4JZnJhY3R1cmFzCWNvcm9uYXJpYXMuCiAgCiMgUGFxdWV0ZXMKYGBge3IsIGluY2x1ZGUgPSBGLCBlY2hvID0gRn0KUGFja2FnZXMgPC0gYygidGlkeXZlcnNlIiwgImZvcmNhdHMiLCAic3RyaW5nciIsICJicm9vbSIpCmxhcHBseShQYWNrYWdlcywgbGlicmFyeSwgY2hhcmFjdGVyLm9ubHkgPSBUUlVFKQpybShQYWNrYWdlcykKYGBgCiMjIFBhcXVldGVzIGVzcGVjw61maWNvcwoKYGBge3IsIGV2YWw9RkFMU0V9CmxpYnJhcnkoc3Vydml2YWwpICMgZm9yIGNvbXB1dGluZyBzdXJ2aXZhbCBhbmFseXNlcwpsaWJyYXJ5KHN1cnZtaW5lcikgIyBmb3IgdmlzdWFsaXppbmcgc3Vydml2YWwgYW5hbHlzaXMgcmVzdWx0cwpgYGAKCgojIERhdGFzZXQKCmBgYHtyfQpkZiA8LSByZWFkX2NzdihzcHJpbnRmKCJodHRwczovL2RvY3MuZ29vZ2xlLmNvbS9zcHJlYWRzaGVldHMvZC9lLzJQQUNYLTF2U0hRMTdmLWZlbEVEQkhFeDJ1ejBKanN0LV96NndIVGZCN2hTRkhEMWlYOFhXd2Q2R1lUT1lCbzVGOERYakxHZHhwVGs5QnFVdF9NMGxHL3B1Yj9naWQ9MTk5NTAzNzU1NSZzaW5nbGU9dHJ1ZSZvdXRwdXQ9Y3N2IikpCmdsaW1wc2UoZGYpIApgYGAKCiMjIERhdGEgbWFuaXB1bGF0aW9uCgpDcmVvIHVuYSBudWV2YSB2YXJpYWJsZTogc3RhdHVzCgpQcm9uw7NzdGljbwlwdWxwYXI6CVZhcmlhYmxlCWRlcGVuZGllbnRlLglFdmFsdWFkbwljb24JcmFkaW9ncmFmw61hCXBlcmlhcGljYWwuCQogICAtIEJ1ZW4JcHJvbsOzc3RpY286CShQUykJc29icmV2aXZlbmNpYQlkZQlsYQlQdWxwYQkKICAgICAgLSBTaW4JY2FtYmlvCXJhZGlvZ3LDoWZpY28sCXNpZ25vcwljbMOtbmljb3MJZGUJdml0YWxpZGFkCXB1bHBhci4JCiAgICAgIC0gUENPOglvYmxpdGVyYWNpw7NuCWRlbAljb25kdWN0bwlwdWxwYXIuCQogICAgICAtIERldGVuY2nDs24JIGRlbAkgY3JlY2ltaWVudG8JIHJhZGljdWxhciwJIGNvbmR1Y3RvCSBwdWxwYXIJIG5vcm1hbCwJIGxvbmdpdHVkCQpyYWRpY3VsYXIJZGlzbWludWlkYQllbgljb21wYXJhY2nDs24JY29uCWVsCWhvbcOzbG9nby4JCiAgIC0gTWFsCSBwcm9uw7NzdGljbzoJIChQTikJIG5lY3Jvc2lzCSBwdWxwYXIsCSBvYnNlcnZhbmRvCSBhbXBsaXR1ZAkgZGVsCSBjb25kdWN0bwlyYWRpY3VsYXIsCWVzcGVzb3IJZGlzbWludWlkbwlkZQlwYXJlZGVzCXJhZGljdWxhcmVzCWNvbglvCXNpbglsZXNpw7NuCWFwaWNhbAogICAgICAgIC0gRGVzYXJyb2xsbwlyYWRpY3VsYXIJY29tcGxldG8sCWNvbgl0cmF0YW1pZW50bwlkZQllbmRvZG9uY2lhLgkKICAgICAgICAtIERldGVuY2nDs24JZGVsCWNyZWNpbWllbnRvCXJhZGljdWxhciwJY29uCXRyYXRhbWllbnRvCWRlCWVuZG9kb25jaWEuCQoKYGBge3J9Cgp0YWJsZShkZiRgU09CUkVWSURBIFBVTFBBUmApCmRmICU+JSAKICBtdXRhdGUoCiAgICBzdGF0dXMgPSBjYXNlX3doZW4oCiAgICAgIGBTT0JSRVZJREEgUFVMUEFSYAogICAgKQogICkKYGBgCgoKCiMjIERhdGFzZXQgY2xlYW4KCiMgU3Vydml2YWwgYW5hbHlzaXMKCiMjIEJhc2ljcyBvZiB0aGUgQ294IHByb3BvcnRpb25hbCBoYXphcmRzIG1vZGVsCgpFbCBwcm9ww7NzaXRvIGRlbCBtb2RlbG8gZGUgQ294IGVzIGV2YWx1YXIgc2ltdWx0w6FuZWFtZW50ZSBlbCBlZmVjdG8gZGUgdmFyaW9zIGZhY3RvcmVzIGVuIGxhIHN1cGVydml2ZW5jaWEuIE5vcyBwZXJtaXRlIGV4YW1pbmFyIGPDs21vIGRpdmVyc29zIGluZmx1eWVuIGVuIGxhIHRhc2EgZGUgdW4gZXZlbnRvIGVuIHBhcnRpY3VsYXIgcXVlIG9jdXJyZSAocG9yIGVqZW1wbG8sIGluZmVjY2nDs24sIG11ZXJ0ZSkgZW4gdW4gbW9tZW50byBwYXJ0aWN1bGFyLiBFc3RhIHRhc2Egc2UgY29ub2NlIGNvbcO6bm1lbnRlIGNvbW8gbGEgdGFzYSBkZSByaWVzZ28gKGhhemFyZCByYXRlKS4gTGFzIHZhcmlhYmxlcyAobyBmYWN0b3JlcykgZGVsIHByZWRpY3RvciBnZW5lcmFsbWVudGUgc2UgZGVub21pbmFuIGNvdmFyaWFibGVzIGVuIGxhIGxpdGVyYXR1cmEgZGUgYW7DoWxpc2lzIGRlIHN1cGVydml2ZW5jaWEuCgoKCmgodCk9aDAodCnDl2V4cChiMXgxK2IyeDIrLi4uK2JweHApCmgodCk9aDAodCnDl2V4cChiMXgxK2IyeDIrLi4uK2JweHApCgpkb25kZSwKCiAgLSAqKnQqKiByZXByZXNlbnRhIGVsIHRpZW1wbyBkZSBzdXBlcnZpdmVuY2lhCiAgLSAqKmggKHQpKiogaCAodCkgZXMgbGEgZnVuY2nDs24gZGUgcmllc2dvIGRldGVybWluYWRhIHBvciB1biBjb25qdW50byBkZSBjb3ZhcmlhYmxlcyBwICh4MSwgeDIsIC4uLiwgeHB4MSwgeDIsIC4uLiwgeHApCiAgLSAqKmxvcyBjb2VmaWNpZW50ZXMqKiAoYjEsIGIyLCAuLi4sIGJwYjEsIGIyLCAuLi4sIGJwKSBtaWRlbiBlbCBpbXBhY3RvIChlcyBkZWNpciwgZWwgdGFtYcOxbyBkZWwgZWZlY3RvKSBkZSBsYXMgY292YXJpYWJsZXMuCmVsIHTDqXJtaW5vIGgwaDAgc2UgbGxhbWEgcmllc2dvIGRlIHJlZmVyZW5jaWEuIENvcnJlc3BvbmRlIGFsIHZhbG9yIGRlbCBwZWxpZ3JvIHNpIHRvZG9zIGxvcyB4aXhpIHNvbiBpZ3VhbGVzIGEgY2VybyAobGEgY2FudGlkYWQgZXhwICgwKSBlcyBpZ3VhbCBhIDEpLiBMYSAndCcgZW4gaCAodCkgbm9zIHJlY3VlcmRhIHF1ZSBlbCBwZWxpZ3JvIHB1ZWRlIHZhcmlhciBjb24gZWwgdGllbXBvLgoKRWwgbW9kZWxvIGRlIENveCBzZSBwdWVkZSBlc2NyaWJpciBjb21vIHVuYSByZWdyZXNpw7NuIGxpbmVhbCBtw7psdGlwbGUgZGVsIGxvZ2FyaXRtbyBkZWwgcGVsaWdybyBlbiBsYXMgdmFyaWFibGVzIHhpeGksIGNvbiBlbCByaWVzZ28gZGUgbGEgbMOtbmVhIGRlIGJhc2UgY29tbyB1biB0w6lybWlubyBkZSAiaW50ZXJjZXBjacOzbiIgcXVlIHZhcsOtYSBjb24gZWwgdGllbXBvLgoKTGFzIGNhbnRpZGFkZXMgZXhwIChiaSkgZXhwIChiaSkgc2UgZGVub21pbmFuIHJlbGFjaW9uZXMgZGUgcmllc2dvIChIUikuIFVuIHZhbG9yIGRlIGJpYmkgbWF5b3IgcXVlIGNlcm8sIG8gZXF1aXZhbGVudGUgYSB1bmEgcmF6w7NuIGRlIHJpZXNnbyBtYXlvciBxdWUgdW5vLCBpbmRpY2EgcXVlIGEgbWVkaWRhIHF1ZSBlbCB2YWxvciBkZSBsYSBub3ZlbmEgY292YXJpYWJsZSBhdW1lbnRhLCBlbCByaWVzZ28gZGUgZXZlbnRvIGF1bWVudGEgeSwgcG9yIGxvIHRhbnRvLCBsYSBkdXJhY2nDs24gZGUgbGEgc3VwZXJ2aXZlbmNpYSBkaXNtaW51eWUuCgpEaWNobyBkZSBvdHJhIG1hbmVyYSwgdW5hIHJhesOzbiBkZSByaWVzZ28gc3VwZXJpb3IgYSAxIGluZGljYSB1bmEgY292YXJpYWJsZSBxdWUgZXN0w6EgYXNvY2lhZGEgcG9zaXRpdmFtZW50ZSBjb24gbGEgcHJvYmFiaWxpZGFkIGRlbCBldmVudG8geSwgcG9yIGxvIHRhbnRvLCBlc3TDoSBhc29jaWFkYSBuZWdhdGl2YW1lbnRlIGNvbiBsYSBkdXJhY2nDs24gZGUgbGEgc3VwZXJ2aXZlbmNpYS4KCkVuIHJlc3VtZW4sCgpIUiA9IDE6IHNpbiBlZmVjdG8KSFIgPCAxOiByZWR1Y2Npw7NuIGVuIGVsIHJpZXNnbwpIUiA+IDE6IGF1bWVudG8gZGUgcmllc2dvCgoKICA=</div>
 
 
 </div>

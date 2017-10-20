@@ -1,5 +1,6 @@
 ---
 title: "Cox analysis"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
   html_notebook: 
     toc: yes
@@ -17,4 +18,85 @@ coronaria.
   - Obtener	un	orden	de	relevancia	de	los	factores	que	intervienen	en	el	pronóstico	de sobrevida	de	dientes	permanentes	con	desarrollo	radicular	incompleto	que	sufren fracturas	coronarias.	
   - Generar	 un	 protocolo	 de	 abordaje	 de	 dientes	 permanentes	 con	 desarrollo	radicular	incompleto	que	sufren	fracturas	coronarias.
   
-  # Pauetes
+# Paquetes
+```{r, include = F, echo = F}
+Packages <- c("tidyverse", "forcats", "stringr", "broom")
+lapply(Packages, library, character.only = TRUE)
+rm(Packages)
+```
+## Paquetes específicos
+
+```{r, eval=FALSE}
+library(survival) # for computing survival analyses
+library(survminer) # for visualizing survival analysis results
+```
+
+
+# Dataset
+
+```{r}
+df <- read_csv(sprintf("https://docs.google.com/spreadsheets/d/e/2PACX-1vSHQ17f-felEDBHEx2uz0Jjst-_z6wHTfB7hSFHD1iX8XWwd6GYTOYBo5F8DXjLGdxpTk9BqUt_M0lG/pub?gid=1995037555&single=true&output=csv"))
+glimpse(df) 
+```
+
+## Data manipulation
+
+Creo una nueva variable: status
+
+Pronóstico	pulpar:	Variable	dependiente.	Evaluado	con	radiografía	periapical.	
+   - Buen	pronóstico:	(PS)	sobrevivencia	de	la	Pulpa	
+      - Sin	cambio	radiográfico,	signos	clínicos	de	vitalidad	pulpar.	
+      - PCO:	obliteración	del	conducto	pulpar.	
+      - Detención	 del	 crecimiento	 radicular,	 conducto	 pulpar	 normal,	 longitud	
+radicular	disminuida	en	comparación	con	el	homólogo.	
+   - Mal	 pronóstico:	 (PN)	 necrosis	 pulpar,	 observando	 amplitud	 del	 conducto	radicular,	espesor	disminuido	de	paredes	radiculares	con	o	sin	lesión	apical
+        - Desarrollo	radicular	completo,	con	tratamiento	de	endodoncia.	
+        - Detención	del	crecimiento	radicular,	con	tratamiento	de	endodoncia.	
+
+```{r}
+
+table(df$`SOBREVIDA PULPAR`)
+df %>% 
+  mutate(
+    status = case_when(
+      `SOBREVIDA PULPAR`
+    )
+  )
+```
+
+
+
+## Dataset clean
+
+# Survival analysis
+
+## Basics of the Cox proportional hazards model
+
+El propósito del modelo de Cox es evaluar simultáneamente el efecto de varios factores en la supervivencia. Nos permite examinar cómo diversos influyen en la tasa de un evento en particular que ocurre (por ejemplo, infección, muerte) en un momento particular. Esta tasa se conoce comúnmente como la tasa de riesgo (hazard rate). Las variables (o factores) del predictor generalmente se denominan covariables en la literatura de análisis de supervivencia.
+
+
+
+h(t)=h0(t)×exp(b1x1+b2x2+...+bpxp)
+h(t)=h0(t)×exp(b1x1+b2x2+...+bpxp)
+
+donde,
+
+  - **t** representa el tiempo de supervivencia
+  - **h (t)** h (t) es la función de riesgo determinada por un conjunto de covariables p (x1, x2, ..., xpx1, x2, ..., xp)
+  - **los coeficientes** (b1, b2, ..., bpb1, b2, ..., bp) miden el impacto (es decir, el tamaño del efecto) de las covariables.
+el término h0h0 se llama riesgo de referencia. Corresponde al valor del peligro si todos los xixi son iguales a cero (la cantidad exp (0) es igual a 1). La 't' en h (t) nos recuerda que el peligro puede variar con el tiempo.
+
+El modelo de Cox se puede escribir como una regresión lineal múltiple del logaritmo del peligro en las variables xixi, con el riesgo de la línea de base como un término de "intercepción" que varía con el tiempo.
+
+Las cantidades exp (bi) exp (bi) se denominan relaciones de riesgo (HR). Un valor de bibi mayor que cero, o equivalente a una razón de riesgo mayor que uno, indica que a medida que el valor de la novena covariable aumenta, el riesgo de evento aumenta y, por lo tanto, la duración de la supervivencia disminuye.
+
+Dicho de otra manera, una razón de riesgo superior a 1 indica una covariable que está asociada positivamente con la probabilidad del evento y, por lo tanto, está asociada negativamente con la duración de la supervivencia.
+
+En resumen,
+
+HR = 1: sin efecto
+HR < 1: reducción en el riesgo
+HR > 1: aumento de riesgo
+
+
+  
