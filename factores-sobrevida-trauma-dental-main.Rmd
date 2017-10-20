@@ -1,0 +1,20 @@
+---
+title: "Cox analysis"
+output: 
+  html_notebook: 
+    toc: yes
+    toc_float: true
+---
+
+# Objetivos
+## OBJETIVO GENERAL
+Determinar	los	factores	que	intervienen	en	el	pronóstico	de	sobrevida	pulpar	de	dientes	
+permanentes	 con	 desarrollo	 radicular	 incompleto	 que	 sufren	 algún	 tipo	 de	 fractura	
+coronaria.	
+
+## OBJETIVOS ESPECÍFICOS
+  - Determinar	 si	 la	 presencia	 de	 malos	 hábitos,	 traumatismos	 repetidos	 y	 control inadecuado	 de	 la	 higiene	 (por	 sí	 solos	 o	 asociados)	 influyen	 en	 el	 pronóstico	 de sobrevida	pulpar	de	dientes	permanentes	con	desarrollo	radicular	incompleto	que sufren	fracturas	coronarias.	
+  - Obtener	un	orden	de	relevancia	de	los	factores	que	intervienen	en	el	pronóstico	de sobrevida	de	dientes	permanentes	con	desarrollo	radicular	incompleto	que	sufren fracturas	coronarias.	
+  - Generar	 un	 protocolo	 de	 abordaje	 de	 dientes	 permanentes	 con	 desarrollo	radicular	incompleto	que	sufren	fracturas	coronarias.
+  
+  # Pauetes
