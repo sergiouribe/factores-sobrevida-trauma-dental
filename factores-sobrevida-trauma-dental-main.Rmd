@@ -19,14 +19,16 @@ coronaria.
   - Generar	 un	 protocolo	 de	 abordaje	 de	 dientes	 permanentes	 con	 desarrollo	radicular	incompleto	que	sufren	fracturas	coronarias.
   
 # Paquetes
-```{r, include = F, echo = F}
-Packages <- c("tidyverse", "forcats", "stringr", "broom")
+
+```{r paquetes varios, include = F, echo = F, eval=FALSE}
+Packages <- c("tidyverse", "forcats", "stringr", "broom", "lubridate")
 lapply(Packages, library, character.only = TRUE)
 rm(Packages)
+
 ```
 ## Paquetes específicos
 
-```{r, eval=FALSE}
+```{r survival, eval=FALSE}
 library(survival) # for computing survival analyses
 library(survminer) # for visualizing survival analysis results
 ```
@@ -34,7 +36,7 @@ library(survminer) # for visualizing survival analysis results
 
 # Dataset
 
-```{r}
+```{r read df}
 df <- read_csv(sprintf("https://docs.google.com/spreadsheets/d/e/2PACX-1vSHQ17f-felEDBHEx2uz0Jjst-_z6wHTfB7hSFHD1iX8XWwd6GYTOYBo5F8DXjLGdxpTk9BqUt_M0lG/pub?gid=1995037555&single=true&output=csv"))
 glimpse(df) 
 ```
@@ -44,24 +46,72 @@ glimpse(df)
 Creo una nueva variable: status
 
 Pronóstico	pulpar:	Variable	dependiente.	Evaluado	con	radiografía	periapical.	
-   - Buen	pronóstico:	(PS)	sobrevivencia	de	la	Pulpa	
+   - **Buen	pronóstico**:	(PS)	sobrevivencia	de	la	Pulpa	
       - Sin	cambio	radiográfico,	signos	clínicos	de	vitalidad	pulpar.	
       - PCO:	obliteración	del	conducto	pulpar.	
       - Detención	 del	 crecimiento	 radicular,	 conducto	 pulpar	 normal,	 longitud	
 radicular	disminuida	en	comparación	con	el	homólogo.	
-   - Mal	 pronóstico:	 (PN)	 necrosis	 pulpar,	 observando	 amplitud	 del	 conducto	radicular,	espesor	disminuido	de	paredes	radiculares	con	o	sin	lesión	apical
+   - **Mal	 pronóstico**:	 (PN)	 necrosis	 pulpar,	 observando	 amplitud	 del	 conducto	radicular,	espesor	disminuido	de	paredes	radiculares	con	o	sin	lesión	apical
         - Desarrollo	radicular	completo,	con	tratamiento	de	endodoncia.	
         - Detención	del	crecimiento	radicular,	con	tratamiento	de	endodoncia.	
 
-```{r}
 
-table(df$`SOBREVIDA PULPAR`)
-df %>% 
+**Sobrevida si**
+  - PCO
+  - Detención crecimiento radicular, pulpa vital
+  - Sin cambio rx
+
+
+**Sobrevida no**
+  - Desarrollo Radicular completo, con endodoncia 
+  - Detención crecimiento radicular, con endodoncia 
+
+
+Creo una nueva variable que será el **evento** = 1 (si) en caso que haya algo negativo y no (0) en caso que no haya pasado nada malo
+
+```{r creo var evento}
+df <-  df %>% 
   mutate(
-    status = case_when(
-      `SOBREVIDA PULPAR`
+    Evento = case_when(
+      `SOBREVIDA PULPAR` == "PCO" |
+        `SOBREVIDA PULPAR` == "Detención crecimiento radicular, pulpa vital" |
+        `SOBREVIDA PULPAR` == "Sin cambio rx" ~ 0, 
+      TRUE ~ 1
+
     )
   )
+
+
+
+```
+Veo cuantos eventos hay 
+
+```{r cuantos eventos}
+table(df$Evento)
+```
+
+
+## Variables importantes
+
+tiempo 
+evento
+independientes
+### TIEMPO 
+
+ cambio las fechas a aaaa/mm/dd y calculo la diferencia en días
+```{r}
+df <- df %>% 
+  mutate(
+    fechaTrauma = dmy(df$`FECHA TRAUMATISMO`), 
+    fechaSobrevida = dmy(df$`FECHA SOBREVIDA`)
+  )
+
+
+df$time <- difftime(df$fechaSobrevida, df$fechaTrauma, units = "days")
+
+df <- df[-c(65), ] # elimino la 65 mientras tanto VERIFICAR!!!!
+
+
 ```
 
 
@@ -69,6 +119,29 @@ df %>%
 ## Dataset clean
 
 # Survival analysis
+
+Creo el objeto
+
+```{r}
+## Add survival object. status == 1 is event
+df$SurvObj <- with(df, Surv(time, Evento == 1))
+```
+
+```{r}
+## Kaplan-Meier estimator. The "log-log" confidence interval is preferred.
+km.as.one <- survfit(SurvObj ~ 1, data = df, conf.type = "log-log")
+km.by.sex <- survfit(SurvObj ~ GÉNERO, data = df, conf.type = "log-log")
+
+## Show object
+km.as.one
+plot(km.as.one)
+```
+```{r}
+km.by.sex
+plot(km.by.sex)
+
+```
+
 
 ## Basics of the Cox proportional hazards model
 
