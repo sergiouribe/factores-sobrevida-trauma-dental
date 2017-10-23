@@ -147,6 +147,9 @@ CORREGIDO Hay dos valores negativos, mientras los elimino
  df <- df[-c(77), ]
 
 
+```{r}
+summary(df)
+```
 
 
 # Survival analysis
@@ -300,6 +303,221 @@ aa_fit <-aareg(Surv(time, Evento) ~
 autoplot(aa_fit)
 ```
 
+
+
+### TODOS
+
+```{r Cox todos}
+modelo_0 <- coxph(km ~ 
+                    df$GÉNERO + 
+                    df$`DIENTE AFECTADO` +
+                    df$DIAGNÓSTICO + 
+                    df$TRATAMIENTO + 
+                    # df$`TIEMPO HASTA LA ATENCIÓN (en horas)` + 
+                    df$`ESTADO RADICULAR INICIAL` + 
+                    df$`TRAUMATISMO REPETIDO` + 
+                    df$`TRAUMATISMO PREVIO` + 
+                    df$`INDICACIÓN DE HIGIENE` + 
+                    df$`EVALUACIÓN DE HIGIENE` + 
+                    df$`ONICOFAGIA - INTERPOSICIÓN DE OBJETOS` , 
+                  data =  df)
+
+```
+
+```{r modelo 0 resumen}
+summary(modelo_0)
+```
+
+
+### TRAUMATISMO PREVIO
+#### modelo 1
+#### modelo 1.1 traumatismo repetido por si solo
+```{r modelo 1.1}
+modelo_1.1 <- coxph(km ~ 
+                    # df$GÉNERO + 
+                    # df$`DIENTE AFECTADO` +
+                    # df$DIAGNÓSTICO + 
+                    # df$TRATAMIENTO + 
+                    # df$`TIEMPO HASTA LA ATENCIÓN (en horas)` + 
+                    # df$`ESTADO RADICULAR INICIAL` + 
+                     df$`TRAUMATISMO REPETIDO`,
+                    # df$`TRAUMATISMO PREVIO` + 
+                    # df$`INDICACIÓN DE HIGIENE` + 
+                    # df$`EVALUACIÓN DE HIGIENE` + 
+                    #df$`ONICOFAGIA - INTERPOSICIÓN DE OBJETOS` , 
+                  data =  df)
+summary(modelo_1.1)
+```
+
+#### modelo 1.2 traumatismo previo por si solo
+```{r modelo 1.2}
+modelo_1.2 <- coxph(km ~ 
+                    # df$GÉNERO + 
+                    # df$`DIENTE AFECTADO` +
+                    # df$DIAGNÓSTICO + 
+                    # df$TRATAMIENTO + 
+                    # df$`TIEMPO HASTA LA ATENCIÓN (en horas)` + 
+                    # df$`ESTADO RADICULAR INICIAL` + 
+                    #  df$`TRAUMATISMO REPETIDO`,
+                     df$`TRAUMATISMO PREVIO`,
+                    # df$`INDICACIÓN DE HIGIENE` + 
+                    # df$`EVALUACIÓN DE HIGIENE` + 
+                    #df$`ONICOFAGIA - INTERPOSICIÓN DE OBJETOS` , 
+                  data =  df)
+summary(modelo_1.2)
+```
+
+
+### EVALUACIÓN DE HIGIENE
+#### modelo 2: indicación y evaluación de higiene
+```{r modelo 2}
+modelo_2 <- coxph(km ~ 
+                    # df$GÉNERO + 
+                    # df$`DIENTE AFECTADO` +
+                    # df$DIAGNÓSTICO + 
+                    # df$TRATAMIENTO + 
+                    # df$`TIEMPO HASTA LA ATENCIÓN (en horas)` + 
+                    # df$`ESTADO RADICULAR INICIAL` + 
+                    # df$`TRAUMATISMO REPETIDO`,
+                    # df$`TRAUMATISMO PREVIO` + 
+                     df$`INDICACIÓN DE HIGIENE` + 
+                     df$`EVALUACIÓN DE HIGIENE`,
+                    #df$`ONICOFAGIA - INTERPOSICIÓN DE OBJETOS` , 
+                  data =  df)
+summary(modelo_2)
+```
+
+#### modelo 2.1 indicación de higiene por si solo
+```{r modelo 2.1}
+modelo_2.1 <- coxph(km ~ 
+                    # df$GÉNERO + 
+                    # df$`DIENTE AFECTADO` +
+                    # df$DIAGNÓSTICO + 
+                    # df$TRATAMIENTO + 
+                    # df$`TIEMPO HASTA LA ATENCIÓN (en horas)` + 
+                    # df$`ESTADO RADICULAR INICIAL` + 
+                    # df$`TRAUMATISMO REPETIDO`,
+                    # df$`TRAUMATISMO PREVIO` + 
+                     df$`INDICACIÓN DE HIGIENE`, 
+                    # df$`EVALUACIÓN DE HIGIENE` + 
+                    #df$`ONICOFAGIA - INTERPOSICIÓN DE OBJETOS` , 
+                  data =  df)
+summary(modelo_2.1)
+```
+#### modelo 2.2 evaluación de higiene por si solo
+```{r modelo 2.2}
+modelo_2.2 <- coxph(km ~ 
+                    # df$GÉNERO + 
+                    # df$`DIENTE AFECTADO` +
+                    # df$DIAGNÓSTICO + 
+                    # df$TRATAMIENTO + 
+                    # df$`TIEMPO HASTA LA ATENCIÓN (en horas)` + 
+                    # df$`ESTADO RADICULAR INICIAL` + 
+                    # df$`TRAUMATISMO REPETIDO`,
+                    # df$`TRAUMATISMO PREVIO` + 
+                    # df$`INDICACIÓN DE HIGIENE` + 
+                     df$`EVALUACIÓN DE HIGIENE`,
+                    #df$`ONICOFAGIA - INTERPOSICIÓN DE OBJETOS` , 
+                  data =  df)
+summary(modelo_2.2)
+```
+
+### ONICOFAGIA - INTERPOSICIÓN DE OBJETOS
+#### modelo 3: malos hábitos
+```{r modelo 3}
+modelo_3 <- coxph(km ~ 
+                    # df$GÉNERO + 
+                    # df$`DIENTE AFECTADO` +
+                    # df$DIAGNÓSTICO + 
+                    # df$TRATAMIENTO + 
+                    # df$`TIEMPO HASTA LA ATENCIÓN (en horas)` + 
+                    # df$`ESTADO RADICULAR INICIAL` + 
+                    # df$`TRAUMATISMO REPETIDO`,
+                    # df$`TRAUMATISMO PREVIO` + 
+                    # df$`INDICACIÓN DE HIGIENE` + 
+                    # df$`EVALUACIÓN DE HIGIENE` + 
+                    df$`ONICOFAGIA - INTERPOSICIÓN DE OBJETOS` , 
+                  data =  df)
+summary(modelo_3)
+```
+
+### ESTADO RADICULAR INICIAL
+#### modelo 4: estado radicular moorres
+
+```{r modelo 4}
+modelo_4 <- coxph(km ~ 
+                    # df$GÉNERO + 
+                    # df$`DIENTE AFECTADO` +
+                    # df$DIAGNÓSTICO + 
+                    # df$TRATAMIENTO + 
+                    # df$`TIEMPO HASTA LA ATENCIÓN (en horas)` + 
+                     df$`ESTADO RADICULAR INICIAL`,
+                    # df$`TRAUMATISMO REPETIDO`,
+                    # df$`TRAUMATISMO PREVIO` + 
+                    # df$`INDICACIÓN DE HIGIENE` + 
+                    # df$`EVALUACIÓN DE HIGIENE` + 
+                    #df$`ONICOFAGIA - INTERPOSICIÓN DE OBJETOS` , 
+                  data =  df)
+summary(modelo_4)
+```
+
+### Modelo 99 que sugiero
+```{r modelo 99}
+modelo_99 <- coxph(km ~ 
+                     df$GÉNERO + 
+                    # df$`DIENTE AFECTADO` +
+                     df$DIAGNÓSTICO + 
+                    # df$TRATAMIENTO + 
+                    # df$`TIEMPO HASTA LA ATENCIÓN (en horas)` + 
+                     df$`ESTADO RADICULAR INICIAL` + 
+                    # df$`TRAUMATISMO REPETIDO` ,
+                     df$`TRAUMATISMO PREVIO` + 
+                    # df$`INDICACIÓN DE HIGIENE` + 
+                     df$`EVALUACIÓN DE HIGIENE` + 
+                     df$`ONICOFAGIA - INTERPOSICIÓN DE OBJETOS` , 
+                  data =  df)
+summary(modelo_99)
+```
+
+Chequeo por si se viola el riesgo proporcional (constante HR en el tiempo)
+
+```{r}
+(res.zph99 <- cox.zph(modelo_99))
+```
+
+```{r}
+cox_fit_99 <- survfit(modelo_99)
+autoplot(cox_fit_99)
+
+```
+Ojo, la mediana no toca el 50%, por lo que da median = NA
+
+```{r}
+cox_fit_99
+```
+
+```{r}
+summary(cox_fit_99)
+```
+
+```{r}
+aa_fit_99 <-aareg(Surv(time, Evento) ~ 
+                  df$GÉNERO + 
+                    # df$`DIENTE AFECTADO` +
+                     df$DIAGNÓSTICO + 
+                    # df$TRATAMIENTO + 
+                    # df$`TIEMPO HASTA LA ATENCIÓN (en horas)` + 
+                     df$`ESTADO RADICULAR INICIAL` + 
+                    # df$`TRAUMATISMO REPETIDO` ,
+                     df$`TRAUMATISMO PREVIO` + 
+                    # df$`INDICACIÓN DE HIGIENE` + 
+                     df$`EVALUACIÓN DE HIGIENE` + 
+                     df$`ONICOFAGIA - INTERPOSICIÓN DE OBJETOS` , 
+                  data =  df)
+
+autoplot(aa_fit_99)
+
+```
 
 # Referencias
 
