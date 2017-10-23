@@ -25,12 +25,15 @@ Packages <- c("tidyverse", "forcats", "stringr", "broom", "lubridate")
 lapply(Packages, library, character.only = TRUE)
 rm(Packages)
 
+
+
 ```
 ## Paquetes específicos
 
 ```{r survival, eval=FALSE}
 library(survival) # for computing survival analyses
 library(survminer) # for visualizing survival analysis results
+library(ggfortify) # nice plot of survival function
 ```
 
 
@@ -50,10 +53,14 @@ Pronóstico	pulpar:	Variable	dependiente.	Evaluado	con	radiografía	periapical.
       - Sin	cambio	radiográfico,	signos	clínicos	de	vitalidad	pulpar.	
       - PCO:	obliteración	del	conducto	pulpar.	
       - Detención	 del	 crecimiento	 radicular,	 conducto	 pulpar	 normal,	 longitud	
-radicular	disminuida	en	comparación	con	el	homólogo.	
+radicular	disminuida	en	comparación	con	el	homólogo.
+
+
    - **Mal	 pronóstico**:	 (PN)	 necrosis	 pulpar,	 observando	 amplitud	 del	 conducto	radicular,	espesor	disminuido	de	paredes	radiculares	con	o	sin	lesión	apical
         - Desarrollo	radicular	completo,	con	tratamiento	de	endodoncia.	
         - Detención	del	crecimiento	radicular,	con	tratamiento	de	endodoncia.	
+
+Entonces
 
 
 **Sobrevida si**
@@ -67,6 +74,39 @@ radicular	disminuida	en	comparación	con	el	homólogo.
   - Detención crecimiento radicular, con endodoncia 
 
 
+
+
+## Variables importantes
+
+ - tiempo
+ - evento
+ - independientes
+
+
+### Tiempo 
+
+ cambio las fechas a aaaa/mm/dd y calculo la diferencia en **semanas**
+```{r tiempo en semanas}
+df <- df %>% 
+  mutate(
+    `FECHA TRAUMATISMO` = dmy(`FECHA TRAUMATISMO`), 
+    `FECHA SOBREVIDA` = dmy(`FECHA SOBREVIDA`), 
+    `FECHA DE NACIMIENTO` = dmy(`FECHA DE NACIMIENTO`)
+  )
+
+# creo time y edad
+
+df <- df %>% 
+  mutate(
+    time = difftime(`FECHA SOBREVIDA`, `FECHA TRAUMATISMO`, units = "weeks") / 52.25, 
+    edad =  difftime(`FECHA TRAUMATISMO`, `FECHA DE NACIMIENTO`, units = "weeks")/52.25 # edad en años
+  )
+
+
+
+```
+
+### Eventos
 Creo una nueva variable que será el **evento** = 1 (si) en caso que haya algo negativo y no (0) en caso que no haya pasado nada malo
 
 ```{r creo var evento}
@@ -86,64 +126,92 @@ df <-  df %>%
 ```
 Veo cuantos eventos hay 
 
-```{r cuantos eventos}
+```{r cuantos eventos?}
 table(df$Evento)
-```
-
-
-## Variables importantes
-
-tiempo 
-evento
-independientes
-### TIEMPO 
-
- cambio las fechas a aaaa/mm/dd y calculo la diferencia en días
-```{r}
-df <- df %>% 
-  mutate(
-    fechaTrauma = dmy(df$`FECHA TRAUMATISMO`), 
-    fechaSobrevida = dmy(df$`FECHA SOBREVIDA`)
-  )
-
-
-df$time <- difftime(df$fechaSobrevida, df$fechaTrauma, units = "days")
-
-df <- df[-c(65), ] # elimino la 65 mientras tanto VERIFICAR!!!!
-
-
 ```
 
 
 
 ## Dataset clean
+CORREGIDO Hay dos valores negativos, mientras los elimino
+
+
+ which(df$time > 0)
+ df[df$time < 0, ] # ubico a la que es menor
+ df$time
+ df[df$time < 1, ]
+ df <- df[-c(65), ] # elimino la 65 mientras tanto VERIFICAR!!!!
+
+ which(df$edad < 0)
+ df[df$edad < 1, ] # hay uno que tiene edad negativa, verificar, mientras lo saco del análisis
+ df <- df[-c(77), ]
+
+
+
 
 # Survival analysis
 
-Creo el objeto
+Creo el objeto estándar de sobrevida 
 
-```{r}
-## Add survival object. status == 1 is event
-df$SurvObj <- with(df, Surv(time, Evento == 1))
+```{r objeto de sobrevida}
+km <-  with(df, Surv(time, Evento == 1))
+head(km, 50)
 ```
 
-```{r}
-## Kaplan-Meier estimator. The "log-log" confidence interval is preferred.
-km.as.one <- survfit(SurvObj ~ 1, data = df, conf.type = "log-log")
-km.by.sex <- survfit(SurvObj ~ GÉNERO, data = df, conf.type = "log-log")
+## Análisis de Kaplan Meier
 
-## Show object
-km.as.one
-plot(km.as.one)
-```
-```{r}
-km.by.sex
-plot(km.by.sex)
+Ahora el análisis de KM
 
+```{r analisis KM}
+km_fit <- survfit(Surv(time, Evento) ~ 1, data = df)
+summary(km_fit)
 ```
 
+Estos datos se leen de la siguiente manera: 
 
-## Basics of the Cox proportional hazards model
+  - en la columna time aparece el tiempo. Este es el eje X del gráfico; 
+  - en n.risk el n de individuos en riesgo;
+  - en n.event la cantidad de eventos en ese período;
+  - en survival la función de sobrevida. Corresponde al eje Y del gráfico; 
+  - luego el error std y los intervalos de confianza, que aparecen marcados en tono gris. 
+  
+```{r ver el km}
+km_fit
+
+
+```
+
+
+
+```{r KM plot}
+autoplot(km_fit, 
+         main = "Análisis de sobrevida Kaplan Meier para estado pulpar",
+         xlab = "Años", ylab = "Probabilidad de sobrevida")
+```
+
+Ahora examino por algunas variables: sexo, dgo del trauma
+
+```{r por sexo}
+
+autoplot(
+  survfit(Surv(time, Evento) ~ GÉNERO, data = df), 
+         main = "Análisis de sobrevida Kaplan Meier para estado pulpar por sexo",
+         xlab = "Años", ylab = "Probabilidad de sobrevida"
+)
+```
+
+```{r por diagnostico}
+autoplot(
+  survfit(Surv(time, Evento) ~ DIAGNÓSTICO, data = df), 
+          main = "Análisis de sobrevida Kaplan Meier para estado pulpar por tipo de trauma",
+         xlab = "Años", ylab = "Probabilidad de sobrevida"
+)
+```
+
+
+
+## Análisis de Cox
+
 
 El propósito del modelo de Cox es evaluar simultáneamente el efecto de varios factores en la supervivencia. Nos permite examinar cómo diversos influyen en la tasa de un evento en particular que ocurre (por ejemplo, infección, muerte) en un momento particular. Esta tasa se conoce comúnmente como la tasa de riesgo (hazard rate). Las variables (o factores) del predictor generalmente se denominan covariables en la literatura de análisis de supervivencia.
 
@@ -172,4 +240,71 @@ HR < 1: reducción en el riesgo
 HR > 1: aumento de riesgo
 
 
-  
+
+
+```{r Cox}
+
+res.cox1 <- coxph(km ~ 
+                    edad + 
+                    `DIENTE AFECTADO` +
+                    GÉNERO + 
+                    DIAGNÓSTICO + 
+                    `TRAUMATISMO REPETIDO` +
+                    `TRAUMATISMO PREVIO`,
+                  data =  df)
+
+
+```
+
+
+Chequeo por si se viola el riesgo proporcional (constante HR en el tiempo)
+
+```{r}
+(res.zph1 <- cox.zph(res.cox1))
+```
+
+No se viola, así que estamos OK
+
+Ahora examino con detalle el modelo de Cox
+
+```{r}
+summary(res.cox1)
+```
+Esto se lee de la siguiente manera
+
+individuos que tienen más edad tienen más probabilidad (0.4841) de tener el evento, mientras que ser sexo masculino disminuye el riesgo (-0.0337) de tener el evento. 
+
+¿Cuanto?
+
+UN aumento de Edad aumenta un 62% el riesgo de tener el evento, con un ic95% entre 05% y 149% (restale uno a los coeficientes)
+
+
+
+
+```{r}
+cox_fit <- survfit(res.cox1)
+autoplot(cox_fit)
+```
+
+```{r}
+
+
+aa_fit <-aareg(Surv(time, Evento) ~ 
+                 `DIENTE AFECTADO` +
+                    GÉNERO + 
+                    DIAGNÓSTICO + 
+                    `TRAUMATISMO REPETIDO` +
+                    df$`TRAUMATISMO PREVIO`,
+                  data =  df)
+
+autoplot(aa_fit)
+```
+
+
+# Referencias
+
+https://www.openintro.org/download.php?file=survival_analysis_in_R&referrer=/stat/surv.php
+
+https://courses.nus.edu.sg/course/stacar/internet/st3242/handouts/notes3.pdf
+
+
